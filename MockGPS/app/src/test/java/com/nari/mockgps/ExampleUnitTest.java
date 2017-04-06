@@ -1,4 +1,4 @@
-package com.nari.lghealthmockgps;
+package com.nari.mockgps;
 
 import org.junit.Test;
 

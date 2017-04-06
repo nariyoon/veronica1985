@@ -1,4 +1,4 @@
-package com.nari.lghealthmockgps;
+package com.nari.mockgps;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

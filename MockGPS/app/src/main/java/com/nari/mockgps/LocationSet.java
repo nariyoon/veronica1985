@@ -1,4 +1,4 @@
-package com.nari.lghealthmockgps;
+package com.nari.mockgps;
 
 import android.location.Location;
 import android.os.SystemClock;
