@@ -22,7 +22,7 @@ public class MockLocationProvider {
     public MockLocationProvider(Context context, String provider) {
         this.context = context;
         this.providerName = provider;
-        this.locationManager = (LocationManager) context.getSystemService(
+        this.locationManager = (LocationManager)context.getSystemService(
                 Context.LOCATION_SERVICE);
     }
 
@@ -55,7 +55,6 @@ public class MockLocationProvider {
         locationManager.clearTestProviderLocation(providerName);
     }
 
-
     public void pushLocation(String[] locations) {
         new AsyncTask<String, Integer, Void>() {
             @Override
@@ -86,11 +85,12 @@ public class MockLocationProvider {
                     location.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
 
                     Log.d("LocationTEst", "convertLocation: " + location);
-//                    https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/location/java/android/location/Location.java
+                    //                    https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/location/java/android/location/Location.java
 
                     if (locationManager.isProviderEnabled(providerName)) {
                         locationManager.setTestProviderEnabled(providerName, true);
-                        locationManager.setTestProviderStatus(providerName, LocationProvider.AVAILABLE, null, System.currentTimeMillis());
+                        locationManager.setTestProviderStatus(providerName,
+                                LocationProvider.AVAILABLE, null, System.currentTimeMillis());
                         locationManager.setTestProviderLocation(providerName, location);
                     }
                     try {
@@ -105,6 +105,11 @@ public class MockLocationProvider {
                 return null;
             }
 
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                GPSProvideService.startActionEnd(context);
+            }
         }.execute(locations);
     }
 

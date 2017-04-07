@@ -20,7 +20,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    MockLocationProvider mockLocationProvider;
     LocationManager locationManager;
     LocationListener locationListener;
 
@@ -28,20 +27,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        GPSProvideService.startActionStart(this);
+        FloatingActionButton fab = (FloatingActionButton)findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                startMockLocation();
+                GPSProvideService.startActionPush(MainActivity.this);
             }
         });
 
-        mockLocationProvider = new MockLocationProvider(this, LocationManager.GPS_PROVIDER);
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
@@ -65,44 +63,14 @@ public class MainActivity extends AppCompatActivity {
         };
         locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-        if (!mockLocationProvider.register()) {
-            Toast.makeText(this, "no provider", Toast.LENGTH_SHORT).show();
-            finish();
-        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mockLocationProvider.unregister();
         locationManager.removeUpdates(locationListener);
+        GPSProvideService.startActionEnd(this);
+
     }
 
-    private void startMockLocation() {
-
-        Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
-
-        try {
-
-            List<String> data = new ArrayList<>();
-
-            InputStream is = getAssets().open("mock_gps_data_01.csv");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                data.add(line);
-            }
-
-            // convert to a simple array so we can pass it to the AsyncTask
-            String[] locations = new String[data.size()];
-            data.toArray(locations);
-
-            mockLocationProvider.pushLocation(locations);
-
-        } catch (IOException e) {
-            Log.e("LocationTest", e.getMessage(), e);
-            e.printStackTrace();
-        }
-    }
 }
