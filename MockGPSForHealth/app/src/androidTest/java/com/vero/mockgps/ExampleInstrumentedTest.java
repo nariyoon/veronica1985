@@ -1,4 +1,4 @@
-package com.vero.mockgpsforhealth;
+package com.vero.mockgps;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

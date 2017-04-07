@@ -1,4 +1,4 @@
-package com.vero.mockgpsforhealth;
+package com.vero.mockgps;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;

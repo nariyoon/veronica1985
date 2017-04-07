@@ -1,9 +1,8 @@
-package com.vero.mockgpsforhealth;
+package com.vero.mockgps;
 
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +10,13 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,10 +28,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton)findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -34,8 +40,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mockLocationProvider = new MockLocationProvider(this, LocationSet.PROVIDER_NAME);
-        locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
+        mockLocationProvider = new MockLocationProvider(this, LocationManager.GPS_PROVIDER);
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
@@ -59,11 +65,6 @@ public class MainActivity extends AppCompatActivity {
         };
         locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         if (!mockLocationProvider.register()) {
             Toast.makeText(this, "no provider", Toast.LENGTH_SHORT).show();
             finish();
@@ -71,14 +72,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        mockLocationProvider.unregister();
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
+        mockLocationProvider.unregister();
         locationManager.removeUpdates(locationListener);
     }
 
@@ -86,21 +82,27 @@ public class MainActivity extends AppCompatActivity {
 
         Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
 
-        //        mockLocationProvider.pushLocation();
-        new AsyncTask<String, Integer, String>() {
+        try {
 
-            @Override
-            protected String doInBackground(String... params) {
-                mockLocationProvider.pushLocation();
-                return null;
+            List<String> data = new ArrayList<>();
+
+            InputStream is = getAssets().open("mock_gps_data_01.csv");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                data.add(line);
             }
 
-            @Override
-            protected void onPostExecute(String s) {
-                Toast.makeText(MainActivity.this, "completed", Toast.LENGTH_SHORT).show();
-                super.onPostExecute(s);
-            }
-        }.execute("");
+            // convert to a simple array so we can pass it to the AsyncTask
+            String[] locations = new String[data.size()];
+            data.toArray(locations);
 
+            mockLocationProvider.pushLocation(locations);
+
+        } catch (IOException e) {
+            Log.e("LocationTest", e.getMessage(), e);
+            e.printStackTrace();
+        }
     }
 }

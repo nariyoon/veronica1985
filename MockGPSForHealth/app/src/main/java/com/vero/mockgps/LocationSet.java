@@ -1,4 +1,4 @@
-package com.vero.mockgpsforhealth;
+package com.vero.mockgps;
 
 import android.location.Location;
 import android.location.LocationManager;
@@ -9,7 +9,6 @@ import android.os.SystemClock;
  */
 
 public class LocationSet {
-    static final String PROVIDER_NAME = LocationManager.GPS_PROVIDER;
 
     static Location[] list1 = {
             createLocation(5181, 37.47523005, 126.88968816, 2.95199997425079, 40.9589996337891),
@@ -650,7 +649,7 @@ public class LocationSet {
 
     static Location createLocation(long time, double lat, double lon, double speed,
             double accuracy) {
-        Location mockLocation = new Location(PROVIDER_NAME);
+        Location mockLocation = new Location(LocationManager.GPS_PROVIDER);
         long curMillis = System.currentTimeMillis();
         long curElapsed = SystemClock.elapsedRealtime();
         mockLocation.setTime(curMillis + time);
