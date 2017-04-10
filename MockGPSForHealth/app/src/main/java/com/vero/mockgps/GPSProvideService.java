@@ -14,40 +14,40 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * An {@link IntentService} subclass for handling asynchronous task requests in
- * a service on a separate handler thread.
- * <p>
- * TODO: Customize class - update intent actions, extra parameters and static
- * helper methods.
- */
 public class GPSProvideService extends IntentService {
-    // TODO: Rename actions, choose action names that describe tasks that this
-    // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
     private static final String ACTION_START = "com.vero.mockgps.action.START";
     private static final String ACTION_PUSH = "com.vero.mockgps.action.PUSH";
     private static final String ACTION_END = "com.vero.mockgps.action.END";
+    private static final String TAG = GPSProvideService.class.getSimpleName();
 
     private MockLocationProvider mockLocationProvider;
 
     public GPSProvideService() {
         super("GPSProvideService");
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
         mockLocationProvider = new MockLocationProvider(this, LocationManager.GPS_PROVIDER);
     }
 
     public static void startActionStart(Context context) {
+        Log.d(TAG, "startActionStart: ");
         Intent intent = new Intent(context, GPSProvideService.class);
         intent.setAction(ACTION_START);
         context.startService(intent);
     }
 
     public static void startActionEnd(Context context) {
+        Log.d(TAG, "startActionEnd: ");
         Intent intent = new Intent(context, GPSProvideService.class);
         intent.setAction(ACTION_END);
         context.startService(intent);
     }
 
     public static void startActionPush(Context context) {
+        Log.d(TAG, "startActionPush: ");
         Intent intent = new Intent(context, GPSProvideService.class);
         intent.setAction(ACTION_PUSH);
         context.startService(intent);
@@ -68,31 +68,34 @@ public class GPSProvideService extends IntentService {
     }
 
     private void handleActionStart() {
+        Log.d(TAG, "handleActionStart: ");
         if (!mockLocationProvider.register()) {
             Toast.makeText(this, "no provider", Toast.LENGTH_SHORT).show();
             stopSelf();
         }
-        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     private void handleActionPush() {
+        Toast.makeText(this, "push start", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "handleActionPush: ");
         pushMockLocation();
-        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     private void handleActionEnd() {
+        Toast.makeText(this, "push end", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "handleActionEnd: ");
         mockLocationProvider.unregister();
-        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     private void pushMockLocation() {
 
-        Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "pushMockLocation: ");
+
 
         try {
             List<String> data = new ArrayList<>();
 
-            InputStream is = getAssets().open("mock_gps_data_01.csv");
+            InputStream is = getAssets().open("mock_gps_data_duration_02.csv");
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
             String line;

@@ -15,25 +15,28 @@ import android.util.Log;
 
 public class MockLocationProvider {
 
+    public final static String TAG = MockLocationProvider.class.getSimpleName();
+
     Context context;
     String providerName;
     LocationManager locationManager;
 
     public MockLocationProvider(Context context, String provider) {
+        Log.d(TAG, "MockLocationProvider: ");
         this.context = context;
         this.providerName = provider;
-        this.locationManager = (LocationManager)context.getSystemService(
+        this.locationManager = (LocationManager) context.getSystemService(
                 Context.LOCATION_SERVICE);
     }
 
     public boolean register() {
+        Log.d(TAG, "register: ");
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
 
         if (locationManager.getProvider(providerName) == null) {
             return false;
         }
-        Log.d("LocationTEst", "register: ");
 
         locationManager.addTestProvider(providerName, false, false, false, false, true,
                 false, true, Criteria.POWER_HIGH,
@@ -43,8 +46,7 @@ public class MockLocationProvider {
     }
 
     public void unregister() {
-
-        Log.d("LocationTEst", "unregister: ");
+        Log.d(TAG, "unregister: ");
         if (locationManager.getProvider(providerName) != null) {
             clearLocation();
             locationManager.removeTestProvider(providerName);
@@ -61,15 +63,17 @@ public class MockLocationProvider {
             protected Void doInBackground(String... data) {
                 for (String str : data) {
 
+                    long duration;
                     double latitude;
                     double longitude;
                     float speed;
 
                     try {
                         String[] parts = str.split(",");
-                        latitude = Double.valueOf(parts[0]);
-                        longitude = Double.valueOf(parts[1]);
-                        speed = Float.valueOf(parts[2]);
+                        duration = Long.valueOf(parts[0]);
+                        latitude = Double.valueOf(parts[1]);
+                        longitude = Double.valueOf(parts[2]);
+                        speed = Float.valueOf(parts[3]);
 
                     } catch (Exception e) {
                         continue;
@@ -94,7 +98,7 @@ public class MockLocationProvider {
                         locationManager.setTestProviderLocation(providerName, location);
                     }
                     try {
-                        Thread.sleep(900);
+                        Thread.sleep(duration);
                         if (Thread.currentThread().isInterrupted())
                             throw new InterruptedException("");
                     } catch (InterruptedException e) {
