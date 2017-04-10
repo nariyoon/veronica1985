@@ -95,7 +95,7 @@ public class GPSProvideService extends IntentService {
         try {
             List<String> data = new ArrayList<>();
 
-            InputStream is = getAssets().open("mock_gps_data_duration_02.csv");
+            InputStream is = getAssets().open("normal_straight.csv");
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
             String line;
