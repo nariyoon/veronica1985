@@ -1,9 +1,19 @@
 package com.vero.mockgps;
 
+import android.Manifest;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -18,6 +28,7 @@ public class GPSProvideService extends IntentService {
     private static final String ACTION_START = "com.vero.mockgps.action.START";
     private static final String ACTION_PUSH = "com.vero.mockgps.action.PUSH";
     private static final String ACTION_END = "com.vero.mockgps.action.END";
+    private static final String EXTRA_CVS_FILE_NAME = "com.vero.mockgps.extra.cvs_file_name";
     private static final String TAG = GPSProvideService.class.getSimpleName();
 
     private MockLocationProvider mockLocationProvider;
@@ -46,10 +57,11 @@ public class GPSProvideService extends IntentService {
         context.startService(intent);
     }
 
-    public static void startActionPush(Context context) {
+    public static void startActionPush(Context context, String cvsFileName) {
         Log.d(TAG, "startActionPush: ");
         Intent intent = new Intent(context, GPSProvideService.class);
         intent.setAction(ACTION_PUSH);
+        intent.putExtra(EXTRA_CVS_FILE_NAME, cvsFileName);
         context.startService(intent);
     }
 
@@ -60,7 +72,8 @@ public class GPSProvideService extends IntentService {
             if (ACTION_START.equals(action)) {
                 handleActionStart();
             } else if (ACTION_PUSH.equals(action)) {
-                handleActionPush();
+                String cvsFileName = intent.getStringExtra(EXTRA_CVS_FILE_NAME);
+                handleActionPush(cvsFileName);
             } else if (ACTION_END.equals(action)) {
                 handleActionEnd();
             }
@@ -69,32 +82,36 @@ public class GPSProvideService extends IntentService {
 
     private void handleActionStart() {
         Log.d(TAG, "handleActionStart: ");
-        if (!mockLocationProvider.register()) {
-            Toast.makeText(this, "no provider", Toast.LENGTH_SHORT).show();
-            stopSelf();
+        try {
+            if (!mockLocationProvider.register()) {
+                showToast("no provider");
+            }
+        } catch (SecurityException e) {
+            showToast("go to developer settings and add mock gps provider");
         }
+
     }
 
-    private void handleActionPush() {
-        Toast.makeText(this, "push start", Toast.LENGTH_SHORT).show();
-        Log.d(TAG, "handleActionPush: ");
-        pushMockLocation();
+    private void handleActionPush(String cvsFileName) {
+        showToast("push start");
+        Log.d(TAG, "handleActionPush: " + cvsFileName);
+        pushMockLocation(cvsFileName);
     }
 
     private void handleActionEnd() {
-        Toast.makeText(this, "push end", Toast.LENGTH_SHORT).show();
+        showToast("push end");
         Log.d(TAG, "handleActionEnd: ");
         mockLocationProvider.unregister();
     }
 
-    private void pushMockLocation() {
+    private void pushMockLocation(String cvsFileName) {
 
         Log.d(TAG, "pushMockLocation: ");
 
         try {
             List<String> data = new ArrayList<>();
 
-            InputStream is = getAssets().open("slowly_walk.csv");
+            InputStream is = getAssets().open(cvsFileName);
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
             String line;
@@ -112,5 +129,14 @@ public class GPSProvideService extends IntentService {
             Log.e("LocationTest", e.getMessage(), e);
             e.printStackTrace();
         }
+    }
+
+    private void showToast(final String msg) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
