@@ -91,11 +91,10 @@ public class GPSProvideService extends IntentService {
 
         Log.d(TAG, "pushMockLocation: ");
 
-
         try {
             List<String> data = new ArrayList<>();
 
-            InputStream is = getAssets().open("normal_straight.csv");
+            InputStream is = getAssets().open("slowly_walk.csv");
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
             String line;
@@ -114,5 +113,4 @@ public class GPSProvideService extends IntentService {
             e.printStackTrace();
         }
     }
-
 }
