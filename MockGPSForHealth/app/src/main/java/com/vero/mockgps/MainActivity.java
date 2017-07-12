@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
         ListView listView = (ListView) findViewById(R.id.location_listview);
         final LocationAdapter adapter = new LocationAdapter();
         adapter.add("slowly_walk.csv", "13min, 1km", R.drawable.slowly_walk);
+        adapter.add("HanRiverRun.csv", "1h, 10km", R.drawable.slowly_walk);
+        adapter.add("YongsanToYeoido.csv", "1h, 15km", R.drawable.slowly_walk);
 
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
